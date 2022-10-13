@@ -51,35 +51,28 @@ class GameFragment : Fragment() {
 
         // Get the viewmodel
         viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
-
-        // TODO (03) Pass the GameViewModel into the data binding - then you can remove the
-        // OnClickListener setup from here
-        binding.correctButton.setOnClickListener {
-            viewModel.onCorrect()
-        }
-        binding.skipButton.setOnClickListener {
-            viewModel.onSkip()
-        }
+        binding.viewModel = viewModel
 
         /** Setting up LiveData observation relationship **/
-        viewModel.word.observe(this, Observer { newWord ->
+        viewModel.word.observe(viewLifecycleOwner) { newWord ->
             binding.wordText.text = newWord
-        })
+        }
 
-        viewModel.score.observe(this, Observer { newScore ->
+        viewModel.score.observe(viewLifecycleOwner) { newScore ->
             binding.scoreText.text = newScore.toString()
-        })
+        }
 
-        viewModel.currentTime.observe(this, Observer { newTime ->
+        viewModel.currentTime.observe(viewLifecycleOwner) { newTime ->
             binding.timerText.text = DateUtils.formatElapsedTime(newTime)
 
-        })
+        }
 
         // Sets up event listening to navigate the player when the game is finished
         viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer { isFinished ->
             if (isFinished) {
                 val currentScore = viewModel.score.value ?: 0
-                val action = GameFragmentDirections.actionGameToScore(currentScore)
+                val action = GameFragmentDirections.actionGameToScore()
+                action.score = currentScore
                 findNavController(this).navigate(action)
                 viewModel.onGameFinishComplete()
             }
