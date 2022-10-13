@@ -37,15 +37,17 @@ class GameFragment : Fragment() {
 
     private lateinit var binding: GameFragmentBinding
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
 
         // Inflate view and obtain an instance of the binding class
         binding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.game_fragment,
-                container,
-                false
+            inflater,
+            R.layout.game_fragment,
+            container,
+            false
         )
 
         // Get the viewmodel
@@ -59,13 +61,13 @@ class GameFragment : Fragment() {
         }
 
         /** Setting up LiveData observation relationship **/
-        viewModel.word.observe(this, Observer { newWord ->
+        viewModel.word.observe(viewLifecycleOwner) { newWord ->
             binding.wordText.text = newWord
-        })
+        }
 
-        viewModel.score.observe(this, Observer { newScore ->
+        viewModel.score.observe(viewLifecycleOwner) { newScore ->
             binding.scoreText.text = newScore.toString()
-        })
+        }
 
         // TODO (04) Add an observer of eventGameFinish which, when eventGameFinish is true,
         // performs the code in gameFinished()
@@ -81,7 +83,8 @@ class GameFragment : Fragment() {
      */
     fun gameFinished() {
         val currentScore = viewModel.score.value ?: 0
-        val action = GameFragmentDirections.actionGameToScore(currentScore)
+        val action = GameFragmentDirections.actionGameToScore()
+        action.score = currentScore
         findNavController(this).navigate(action)
     }
 
