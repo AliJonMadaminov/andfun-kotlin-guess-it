@@ -90,6 +90,7 @@ class GameViewModel : ViewModel() {
     val eventGameFinish: LiveData<Boolean>
         get() = _eventGameFinish
 
+
     // Event that triggers the phone to buzz using different patterns, determined by BuzzType
     private val _eventBuzz = MutableLiveData<BuzzType>()
     val eventBuzz: LiveData<BuzzType>
@@ -105,12 +106,15 @@ class GameViewModel : ViewModel() {
 
             override fun onTick(millisUntilFinished: Long) {
                 _currentTime.value = (millisUntilFinished / ONE_SECOND)
-                if (millisUntilFinished / ONE_SECOND <= COUNTDOWN_PANIC_SECONDS) {
+
+                if (millisUntilFinished <= 10 * ONE_SECOND) {
                     _eventBuzz.value = BuzzType.COUNTDOWN_PANIC
+
                 }
             }
 
             override fun onFinish() {
+                _eventBuzz.value = BuzzType.GAME_OVER
                 _currentTime.value = DONE
                 _eventBuzz.value = BuzzType.GAME_OVER
                 _eventGameFinish.value = true
@@ -125,27 +129,27 @@ class GameViewModel : ViewModel() {
      */
     private fun resetList() {
         wordList = mutableListOf(
-                "queen",
-                "hospital",
-                "basketball",
-                "cat",
-                "change",
-                "snail",
-                "soup",
-                "calendar",
-                "sad",
-                "desk",
-                "guitar",
-                "home",
-                "railway",
-                "zebra",
-                "jelly",
-                "car",
-                "crow",
-                "trade",
-                "bag",
-                "roll",
-                "bubble"
+            "queen",
+            "hospital",
+            "basketball",
+            "cat",
+            "change",
+            "snail",
+            "soup",
+            "calendar",
+            "sad",
+            "desk",
+            "guitar",
+            "home",
+            "railway",
+            "zebra",
+            "jelly",
+            "car",
+            "crow",
+            "trade",
+            "bag",
+            "roll",
+            "bubble"
         )
         wordList.shuffle()
     }
@@ -169,6 +173,7 @@ class GameViewModel : ViewModel() {
     }
 
     fun onCorrect() {
+        _eventBuzz.value = BuzzType.CORRECT
         _score.value = (_score.value)?.plus(1)
         _eventBuzz.value = BuzzType.CORRECT
         nextWord()

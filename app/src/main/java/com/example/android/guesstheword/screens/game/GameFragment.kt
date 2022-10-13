@@ -41,15 +41,17 @@ class GameFragment : Fragment() {
 
     private lateinit var binding: GameFragmentBinding
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
         // Inflate view and obtain an instance of the binding class
         binding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.game_fragment,
-                container,
-                false
+            inflater,
+            R.layout.game_fragment,
+            container,
+            false
         )
 
         // Get the viewmodel
@@ -67,11 +69,13 @@ class GameFragment : Fragment() {
         viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer { isFinished ->
             if (isFinished) {
                 val currentScore = viewModel.score.value ?: 0
-                val action = GameFragmentDirections.actionGameToScore(currentScore)
+                val action = GameFragmentDirections.actionGameToScore()
+                action.score = currentScore
                 findNavController(this).navigate(action)
                 viewModel.onGameFinishComplete()
             }
         })
+
 
         // Buzzes when triggered with different buzz events
         viewModel.eventBuzz.observe(viewLifecycleOwner, Observer { buzzType ->
@@ -85,13 +89,11 @@ class GameFragment : Fragment() {
 
     }
 
-    /**
-     * Given a pattern, this method makes sure the device buzzes
-     */
     private fun buzz(pattern: LongArray) {
-        val buzzer = activity?.getSystemService<Vibrator>()
+        val buzzer = requireActivity().getSystemService<Vibrator>()
+
         buzzer?.let {
-            // Vibrate for 500 milliseconds
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 buzzer.vibrate(VibrationEffect.createWaveform(pattern, -1))
             } else {
@@ -100,4 +102,5 @@ class GameFragment : Fragment() {
             }
         }
     }
+
 }
