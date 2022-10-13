@@ -33,6 +33,8 @@ private val NO_BUZZ_PATTERN = longArrayOf(0)
  */
 class GameViewModel : ViewModel() {
 
+    // These are the three different types of buzzing in the game. Buzz pattern is the number of
+    // milliseconds each interval of buzzing and non-buzzing takes.
     enum class BuzzType(val pattern: LongArray) {
         CORRECT(CORRECT_BUZZ_PATTERN),
         GAME_OVER(GAME_OVER_BUZZ_PATTERN),
@@ -45,6 +47,9 @@ class GameViewModel : ViewModel() {
 
         // This is when the game is over
         private const val DONE = 0L
+
+        // This is the time when the phone will start buzzing each second
+        private const val COUNTDOWN_PANIC_SECONDS = 10L
 
         // This is the number of milliseconds in a second
         private const val ONE_SECOND = 1000L
@@ -85,6 +90,8 @@ class GameViewModel : ViewModel() {
     val eventGameFinish: LiveData<Boolean>
         get() = _eventGameFinish
 
+
+    // Event that triggers the phone to buzz using different patterns, determined by BuzzType
     private val _eventBuzz = MutableLiveData<BuzzType>()
     val eventBuzz: LiveData<BuzzType>
         get() = _eventBuzz
@@ -99,6 +106,7 @@ class GameViewModel : ViewModel() {
 
             override fun onTick(millisUntilFinished: Long) {
                 _currentTime.value = (millisUntilFinished / ONE_SECOND)
+
                 if (millisUntilFinished <= 10 * ONE_SECOND) {
                     _eventBuzz.value = BuzzType.COUNTDOWN_PANIC
 
@@ -108,6 +116,7 @@ class GameViewModel : ViewModel() {
             override fun onFinish() {
                 _eventBuzz.value = BuzzType.GAME_OVER
                 _currentTime.value = DONE
+                _eventBuzz.value = BuzzType.GAME_OVER
                 _eventGameFinish.value = true
             }
         }
@@ -166,6 +175,7 @@ class GameViewModel : ViewModel() {
     fun onCorrect() {
         _eventBuzz.value = BuzzType.CORRECT
         _score.value = (_score.value)?.plus(1)
+        _eventBuzz.value = BuzzType.CORRECT
         nextWord()
     }
 
@@ -176,6 +186,7 @@ class GameViewModel : ViewModel() {
     }
 
     fun onBuzzComplete() {
+        _eventBuzz.value = BuzzType.NO_BUZZ
     }
 
     override fun onCleared() {

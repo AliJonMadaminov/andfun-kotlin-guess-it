@@ -76,12 +76,14 @@ class GameFragment : Fragment() {
             }
         })
 
-        viewModel.apply {
-            eventBuzz.observe(viewLifecycleOwner) { buzzType ->
+
+        // Buzzes when triggered with different buzz events
+        viewModel.eventBuzz.observe(viewLifecycleOwner, Observer { buzzType ->
+            if (buzzType != GameViewModel.BuzzType.NO_BUZZ) {
                 buzz(buzzType.pattern)
+                viewModel.onBuzzComplete()
             }
-            onBuzzComplete()
-        }
+        })
 
         return binding.root
 
@@ -91,6 +93,7 @@ class GameFragment : Fragment() {
         val buzzer = requireActivity().getSystemService<Vibrator>()
 
         buzzer?.let {
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 buzzer.vibrate(VibrationEffect.createWaveform(pattern, -1))
             } else {
