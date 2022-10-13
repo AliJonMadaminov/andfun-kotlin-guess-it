@@ -74,7 +74,8 @@ class GameFragment : Fragment() {
         viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer { isFinished ->
             if (isFinished) {
                 val currentScore = viewModel.score.value ?: 0
-                val action = GameFragmentDirections.actionGameToScore(currentScore)
+                val action = GameFragmentDirections.actionGameToScore()
+                action.score = currentScore
                 findNavController(this).navigate(action)
                 viewModel.onGameFinishComplete()
             }
