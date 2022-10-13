@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment.findNavController
+import androidx.navigation.fragment.findNavController
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
 
@@ -55,31 +56,20 @@ class GameFragment : Fragment() {
         // Set the viewmodel for databinding - this allows the bound layout access to all of the
         // data in the VieWModel
         binding.gameViewModel = viewModel
-        // TODO (02) Call binding.setLifecycleOwner and pass in "this" fragment to make the
-        // data binding lifecycle aware
+        binding.lifecycleOwner = viewLifecycleOwner
 
-        // TODO (03) Now you can remove the score and word observers - we'll fix
-        // the currentTime observation in the next step
-        /** Setting up LiveData observation relationship **/
-        viewModel.word.observe(this, Observer { newWord ->
-            binding.wordText.text = newWord
-        })
-
-        viewModel.score.observe(this, Observer { newScore ->
-            binding.scoreText.text = newScore.toString()
-        })
-
-        viewModel.currentTime.observe(this, Observer { newTime ->
+        viewModel.currentTime.observe(viewLifecycleOwner) { newTime ->
             binding.timerText.text = DateUtils.formatElapsedTime(newTime)
 
-        })
+        }
 
         // Sets up event listening to navigate the player when the game is finished
         viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer { isFinished ->
             if (isFinished) {
                 val currentScore = viewModel.score.value ?: 0
-                val action = GameFragmentDirections.actionGameToScore(currentScore)
-                findNavController(this).navigate(action)
+                val action = GameFragmentDirections.actionGameToScore()
+                action.score = currentScore
+                findNavController().navigate(action)
                 viewModel.onGameFinishComplete()
             }
         })
