@@ -17,9 +17,13 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.CountDownTimer
+import android.text.format.DateUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import java.text.DateFormat
+import java.util.*
 
 
 /**
@@ -47,9 +51,9 @@ class GameViewModel : ViewModel() {
     val currentTime: LiveData<Long>
         get() = _currentTime
 
-    // TODO (01) Create a new LiveData called currentTimeString.
-    // TODO (02) Use Transformation.map to take the number output from currentTime, and transform
-    // it into a String using DateUtils.
+    val currentTimeString = Transformations.map(currentTime) {
+        DateUtils.formatElapsedTime(it)
+    }
 
     // The current word
     private val _word = MutableLiveData<String>()
