@@ -17,6 +17,8 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.Bundle
+import android.text.format.DateFormat
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -59,19 +61,20 @@ class GameFragment : Fragment() {
         }
 
         /** Setting up LiveData observation relationship **/
-        viewModel.word.observe(this, Observer { newWord ->
+        viewModel.word.observe(viewLifecycleOwner, Observer { newWord ->
             binding.wordText.text = newWord
         })
 
-        viewModel.score.observe(this, Observer { newScore ->
+        viewModel.score.observe(viewLifecycleOwner) { newScore ->
             binding.scoreText.text = newScore.toString()
-        })
+        }
 
-        // TODO (07) Setup an observer relationship to update binding.timerText
-        // You can use DateUtils.formatElapsedTime to correctly format the long to a time string
+        viewModel.currentTime.observe(viewLifecycleOwner) { newTime ->
+            binding.timerText.text = DateFormat.format("mm:ss", newTime)
+        }
 
         // Sets up event listening to navigate the player when the game is finished
-        viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer { isFinished ->
+        viewModel.eventGameFinish.observe(viewLifecycleOwner) { isFinished ->
             if (isFinished) {
                 val currentScore = viewModel.score.value ?: 0
                 val action = GameFragmentDirections.actionGameToScore()
@@ -79,7 +82,7 @@ class GameFragment : Fragment() {
                 findNavController(this).navigate(action)
                 viewModel.onGameFinishComplete()
             }
-        })
+        }
 
         return binding.root
 
